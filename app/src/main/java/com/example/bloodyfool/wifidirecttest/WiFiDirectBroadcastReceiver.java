@@ -41,7 +41,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             mActivity.setDeviceList(peers);
 
             try {
-                //mActivity.chipper(((WifiP2pDevice) peers.get(0)).deviceName);
+                //mActivity.chipper(((WifiP2pDevice) peers.get(0)).deviceAddress);
                 /*WifiP2pDevice device = (WifiP2pDevice) peers.get(0);
                 WifiP2pConfig config = new WifiP2pConfig();
                 config.deviceAddress = device.deviceAddress;

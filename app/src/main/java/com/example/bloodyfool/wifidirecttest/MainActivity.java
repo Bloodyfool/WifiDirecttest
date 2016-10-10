@@ -7,7 +7,11 @@ import android.content.IntentFilter;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -50,8 +54,19 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                mManager.requestGroupInfo(mChannel, new WifiP2pManager.GroupInfoListener() {
+                    @Override
+                    public void onGroupInfoAvailable(WifiP2pGroup group) {
+                        try {
+                            String s = "Group owner: " + group.getOwner().deviceName;
+                            chipper(s);
+                        }
+                        catch(NullPointerException e){
+                            chipper("no current group");
+                        }
+
+                    }
+                });
             }
         });
 
@@ -75,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
         theListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String picked = "You selected " + String.valueOf(parent.getItemAtPosition(position));
-                chipper(picked);
+                //String picked = "You selected " + String.valueOf(((WifiP2pDevice)parent.getItemAtPosition(position)).deviceName);
+                //chipper(picked);
                 WifiP2pDevice device = (WifiP2pDevice)parent.getItemAtPosition(position);
                 WifiP2pConfig config = new WifiP2pConfig();
                 config.deviceAddress = device.deviceAddress;
@@ -86,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess() {
                         // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
+
                     }
 
                     @Override
@@ -103,19 +119,19 @@ public class MainActivity extends AppCompatActivity {
                 mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
                     @Override
                     public void onSuccess() {
-                       //Snackbar.make(v, "OnSuccess", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                        chipper(Build.USER);
+                        chipper("OnSuccess");
                     }
 
                     @Override
                     public void onFailure(int reasonCode) {
-                        Snackbar.make(v, "OnFailure", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                        chipper("OnFailure");
 
                     }
                 });
 
             }
         });
+
     }
 
     public void setDeviceList(List l) {
@@ -163,6 +179,4 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         unregisterReceiver(mReceiver);
     }
-
-
 }
