@@ -32,7 +32,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    Server server;
+    Network network;
     Button sendbutton;
     Button scanbutton;
     WifiP2pManager mManager;
@@ -68,26 +68,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mManager.requestGroupInfo(mChannel, new WifiP2pManager.GroupInfoListener() {
-                    @Override
-                    public void onGroupInfoAvailable(WifiP2pGroup group) {
-                        try {
-                            String iface = group.getInterface();
-                            String owner = group.getOwner().deviceName;
-                            String ipaddress = ((WiFiDirectBroadcastReceiver) mReceiver).getIpFromArpCache(iface);
-                            ip = ipaddress;
-                            if (group.isGroupOwner()) {
-                                chipper("You are owner");
-                            } else {
-                                String s = "Group owner: " + owner + "\nIp: " + ipaddress;
-                                chipper(s);
-                            }
-                        } catch (NullPointerException e) {
-                            chipper("no current group");
-                        }
 
-                    }
-                });
             }
         });
 
@@ -122,8 +103,6 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onSuccess() {
-                        // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
-
                     }
 
                     @Override
@@ -153,7 +132,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(int reasonCode) {
                         chipper("OnFailure");
-
                     }
                 });
 

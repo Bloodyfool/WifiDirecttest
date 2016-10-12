@@ -152,13 +152,12 @@ public class Server {
 
                     if (inetAddress.isSiteLocalAddress()) {
                         ip += "Server running at : "
-                                + inetAddress.getHostAddress();
+                                + inetAddress.getHostAddress() + networkInterface.getDisplayName();
                     }
                 }
             }
 
         } catch (SocketException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             ip += "Something Wrong! " + e.toString() + "\n";
         }

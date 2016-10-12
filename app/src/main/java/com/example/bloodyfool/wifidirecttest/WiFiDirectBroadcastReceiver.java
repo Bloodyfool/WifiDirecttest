@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pManager;
 
 import java.io.BufferedReader;
@@ -68,6 +69,19 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 server = new Server(mActivity);
                 mActivity.infoip.setText(server.getIpAddress() + ":" + server.getPort());
 
+                mManager.requestGroupInfo(mChannel, new WifiP2pManager.GroupInfoListener() {
+                    @Override
+                    public void onGroupInfoAvailable(WifiP2pGroup group) {
+                        try {
+                            String iface = group.getInterface();
+                            String ipaddress = getIpFromArpCache(iface);
+                            mActivity.ip = ipaddress;
+                        } catch (NullPointerException e) {
+                            mActivity.chipper("no current group");
+                        }
+
+                    }
+                });
 
             } else {
                 try {
