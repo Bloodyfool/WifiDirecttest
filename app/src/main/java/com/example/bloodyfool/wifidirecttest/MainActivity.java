@@ -35,18 +35,17 @@ public class MainActivity extends AppCompatActivity {
     Network network;
     Button sendbutton;
     Button scanbutton;
-    WifiP2pManager mManager;
-    WifiP2pManager.Channel mChannel;
-    BroadcastReceiver mReceiver;
+    //WifiP2pManager mManager;
+    //WifiP2pManager.Channel mChannel;
+    //BroadcastReceiver mReceiver;
     IntentFilter mIntentFilter;
     List peers = new ArrayList();
     ListAdapter theAdapter;
     ListView theListView;
     TextView infoip, msg;
-    boolean isConnected;
     TextView response;
     EditText message;
-    String ip;
+    String ip = null;
     int port = 12345;
 
     @Override
@@ -56,9 +55,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        mChannel = mManager.initialize(this, getMainLooper(), null);
-        mReceiver = new WiFiDirectBroadcastReceiver(mManager, mChannel, this);
+        //mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        //mChannel = mManager.initialize(this, getMainLooper(), null);
+        //mReceiver = new WiFiDirectBroadcastReceiver(mManager, mChannel, this);
+
+        network = new Network(this);
 
         //server = ((WiFiDirectBroadcastReceiver) mReceiver).getServer();
         infoip = (TextView) findViewById(R.id.infoip);
@@ -71,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
 
         mIntentFilter = new IntentFilter();
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -99,7 +99,8 @@ public class MainActivity extends AppCompatActivity {
                 WifiP2pConfig config = new WifiP2pConfig();
                 config.deviceAddress = device.deviceAddress;
                 config.wps.setup = WpsInfo.PBC;
-                mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
+                network.connect(config);
+                /**mManager.connect(mChannel, config, new WifiP2pManager.ActionListener() {
 
                     @Override
                     public void onSuccess() {
@@ -109,21 +110,19 @@ public class MainActivity extends AppCompatActivity {
                     public void onFailure(int reason) {
                         chipper("Connect failed. Retry.");
                     }
-                });
+                });*/
             }
         });
 
         scanbutton.setOnClickListener(new View.OnClickListener() {
             public void onClick(final View v) {
-                //Snackbar.make(v, "M8M8M8M8M8M8M8", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-                ConnectivityManager connMann = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo mWifi = connMann.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                if (!mWifi.isConnected()) {
+                /**WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+                if (wifi.getWifiState() == WifiManager.WIFI_STATE_DISABLED) {
                     wifi.setWifiEnabled(true);
-                }
+                }**/
+                network.enableWifi();
 
-                mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
+                /**mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener() {
                     @Override
                     public void onSuccess() {
                         chipper("OnSuccess");
@@ -133,15 +132,16 @@ public class MainActivity extends AppCompatActivity {
                     public void onFailure(int reasonCode) {
                         chipper("OnFailure");
                     }
-                });
-
+                });**/
+                network.discoverPeers();
             }
         });
 
         sendbutton.setOnClickListener(new View.OnClickListener() {
             public void onClick(final View v) {
-                Client client = new Client(ip, port, response, message.getText().toString());
-                client.execute();
+                network.send(1, message.getText().toString());
+                /**Client client = new Client(ip, port, response, message.getText().toString());
+                client.execute();**/
             }
         });
 
@@ -155,10 +155,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void chipper(String text) {
         Snackbar.make(findViewById(R.id.content_main), text, Snackbar.LENGTH_LONG).setAction("Action", null).show();
-    }
-
-    public void setConnected(boolean state) {
-        isConnected = state;
     }
 
     @Override
@@ -187,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-            ((WiFiDirectBroadcastReceiver) mReceiver).getServer().onDestroy();
+            ((WiFiDirectBroadcastReceiver) network.getReceiver()).getServer().onDestroy();
         } catch (NullPointerException e) {
         }
     }
@@ -196,13 +192,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(mReceiver, mIntentFilter);
+        registerReceiver(network.getReceiver(), mIntentFilter);
     }
 
     /* unregister the broadcast receiver */
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mReceiver);
+        unregisterReceiver(network.getReceiver());
     }
 }

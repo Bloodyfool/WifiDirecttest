@@ -22,16 +22,17 @@ import java.net.UnknownHostException;
  */
 
 public class Client extends AsyncTask<Void, Void, Void> {
-    String dstAddress;
-    int dstPort;
-    String response = "";
-    TextView textResponse;
-    String message;
 
-    Client(String addr, int port, TextView textResponse, String theMessage) {
+    private String dstAddress;
+    private int dstPort;
+    private boolean response;
+    private String message;
+    Network network;
+
+    Client(Network network, String addr, int port, String theMessage) {
+        this.network = network;
         dstAddress = addr;
         dstPort = port;
-        this.textResponse = textResponse;
         message = theMessage;
     }
 
@@ -61,7 +62,7 @@ public class Client extends AsyncTask<Void, Void, Void> {
             PrintStream printStream = new PrintStream(socket.getOutputStream());
             printStream.print(message);
             printStream.close();
-
+            response = true;
             /**BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             for (String data; (data = bufferedReader.readLine()) != null; ) {
@@ -72,10 +73,10 @@ public class Client extends AsyncTask<Void, Void, Void> {
 
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            response = "UnknownHostException: " + e.toString();
+            response = false;
         } catch (IOException e) {
             e.printStackTrace();
-            response = "IOException: " + e.toString();
+            response = false;
         } finally {
             if (socket != null) {
                 try {
@@ -90,7 +91,7 @@ public class Client extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void result) {
-        textResponse.setText(response);
+        network.afterSend(response);
         super.onPostExecute(result);
     }
 }

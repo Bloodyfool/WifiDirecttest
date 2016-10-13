@@ -16,15 +16,17 @@ import java.util.List;
 
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
+    Network network;
     private WifiP2pManager mManager;
     private WifiP2pManager.Channel mChannel;
     private MainActivity mActivity;
     private List peers = new ArrayList();
     Server server;
 
-    public WiFiDirectBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel,
+    public WiFiDirectBroadcastReceiver(Network network, WifiP2pManager manager, WifiP2pManager.Channel channel,
                                        MainActivity activity) {
         super();
+        this.network= network;
         this.mManager = manager;
         this.mChannel = channel;
         this.mActivity = activity;
@@ -64,8 +66,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             NetworkInfo info = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
             if (info.isConnected()) {
                 //setup server
-                mActivity.setConnected(true);
-                mActivity.chipper("is connected");
+                network.setConnected(true);
                 server = new Server(mActivity);
                 mActivity.infoip.setText(server.getIpAddress() + ":" + server.getPort());
 
@@ -75,7 +76,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                         try {
                             String iface = group.getInterface();
                             String ipaddress = getIpFromArpCache(iface);
-                            mActivity.ip = ipaddress;
+                            network.setIp(ipaddress);
+                            network.setIface(iface);
+                            mActivity.chipper(ipaddress);
                         } catch (NullPointerException e) {
                             mActivity.chipper("no current group");
                         }
@@ -87,7 +90,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 try {
                     server.onDestroy();
                 } catch (NullPointerException e) {}
-                mActivity.setConnected(false);
+                network.setConnected(false);
             }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             // Respond to this device's wifi state changing
