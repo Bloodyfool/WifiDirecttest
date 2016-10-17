@@ -3,6 +3,7 @@ package com.example.bloodyfool.wifidirecttest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pManager;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by bloodyfool on 12-10-16.
@@ -28,6 +30,7 @@ public class Network {
     private String iface;
     private int port = 12345;
     private boolean isConnected;
+    IntentFilter mIntentFilter;
 
 
     public Network(MainActivity main) {
@@ -37,6 +40,11 @@ public class Network {
         mReceiver = new WiFiDirectBroadcastReceiver(this, mManager, mChannel, main);
         this.main = main;
 
+        mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
         //get broadcast receiver
     }
 
@@ -53,6 +61,10 @@ public class Network {
             }
         });
 
+    }
+
+    public void setDeviceList(List l) {
+        main.setDeviceList(l);
     }
 
     public void registerGame(int id, TextView v) {
@@ -100,7 +112,7 @@ public class Network {
 
     public void afterSend(boolean status) {
         if(!status) {
-            game.setText("Send failed");
+            //game.setText("Send failed");
         }
     }
 

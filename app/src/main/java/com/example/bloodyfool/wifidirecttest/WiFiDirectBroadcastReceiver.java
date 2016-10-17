@@ -37,7 +37,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         public void onPeersAvailable(WifiP2pDeviceList peerList) {
             peers.clear();
             peers.addAll(peerList.getDeviceList());
-            mActivity.setDeviceList(peers);
+            network.setDeviceList(peers);
         }
 
     };
@@ -68,7 +68,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 //setup server
                 network.setConnected(true);
                 server = new Server(mActivity);
-                mActivity.infoip.setText(server.getIpAddress() + ":" + server.getPort());
+                //mActivity.infoip.setText(server.getIpAddress() + ":" + server.getPort());
 
                 mManager.requestGroupInfo(mChannel, new WifiP2pManager.GroupInfoListener() {
                     @Override
