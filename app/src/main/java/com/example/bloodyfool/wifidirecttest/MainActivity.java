@@ -178,8 +178,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         try {
             ((WiFiDirectBroadcastReceiver) network.getReceiver()).getServer().onDestroy();
-        } catch (NullPointerException e) {
-        }
+        } catch (NullPointerException e) {}
     }
 
     /* register the broadcast receiver with the intent values to be matched */

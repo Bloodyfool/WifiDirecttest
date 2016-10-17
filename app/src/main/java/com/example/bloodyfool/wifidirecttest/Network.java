@@ -30,7 +30,6 @@ public class Network {
     private String iface;
     private int port = 12345;
     private boolean isConnected;
-    IntentFilter mIntentFilter;
 
 
     public Network(MainActivity main) {
@@ -40,11 +39,6 @@ public class Network {
         mReceiver = new WiFiDirectBroadcastReceiver(this, mManager, mChannel, main);
         this.main = main;
 
-        mIntentFilter = new IntentFilter();
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
         //get broadcast receiver
     }
 
